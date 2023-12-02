@@ -20,8 +20,8 @@ func part2(lines []string) int {
 func main() {
 	args := flag.Args()
 	name := "sample"
-	if len(args) > 1 {
-		name = args[1]
+	if len(args) > 0 {
+		name = args[0]
 	}
 	f, err := os.Open(fmt.Sprintf("./data/%s.txt", name))
 	if err != nil {

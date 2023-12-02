@@ -24,6 +24,22 @@ func (c colorset) isPossibleWith(bag colorset) bool {
 	return c.red <= bag.red && c.green <= bag.green && c.blue <= bag.blue
 }
 
+func (c colorset) power() int {
+	return c.red * c.green * c.blue
+}
+
+func (c *colorset) accumulate(draw colorset) {
+	if draw.red > c.red {
+		c.red = draw.red
+	}
+	if draw.green > c.green {
+		c.green = draw.green
+	}
+	if draw.blue > c.blue {
+		c.blue = draw.blue
+	}
+}
+
 type game []colorset
 
 func parse(lines []string) map[int]game {
@@ -72,7 +88,16 @@ outer:
 }
 
 func part2(games map[int]game) int {
-	return 0
+	total := 0
+
+	for _, g := range games {
+		bag := colorset{}
+		for _, d := range g {
+			bag.accumulate(d)
+		}
+		total += bag.power()
+	}
+	return total
 }
 
 func main() {
@@ -91,7 +116,7 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	games := parse(lines)
-	fmt.Println(games)
+	// fmt.Println(games)
 	fmt.Println(part1(games))
 	fmt.Println(part2(games))
 }
