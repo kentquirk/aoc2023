@@ -47,6 +47,24 @@ func checkAdjacent(numbers []*number, specials []*special) {
 	}
 }
 
+func sumGears(numbers []*number, specials []*special) int {
+	sum := 0
+	for _, s := range specials {
+		count := 0
+		product := 1
+		for _, n := range numbers {
+			if n.checkAdjacent(s) {
+				count++
+				product *= n.value
+			}
+		}
+		if count == 2 {
+			sum += product
+		}
+	}
+	return sum
+}
+
 func parse(lines []string) ([]*number, []*special) {
 	var numbers []*number
 	var specials []*special
@@ -85,14 +103,6 @@ func total(numbers []*number) int {
 	return total
 }
 
-func part1(lines []string) int {
-	return 0
-}
-
-func part2(lines []string) int {
-	return 0
-}
-
 func main() {
 	args := os.Args[1:]
 	name := "sample"
@@ -110,6 +120,7 @@ func main() {
 	lines := strings.Split(string(b), "\n")
 	numbers, specials := parse(lines)
 	checkAdjacent(numbers, specials)
-	fmt.Println(numbers)
+	// fmt.Println(numbers)
 	fmt.Println(total(numbers))
+	fmt.Println(sumGears(numbers, specials))
 }
