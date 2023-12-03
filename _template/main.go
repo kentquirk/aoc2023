@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -18,7 +17,7 @@ func part2(lines []string) int {
 }
 
 func main() {
-	args := flag.Args()
+	args := os.Args
 	name := "sample"
 	if len(args) > 0 {
 		name = args[0]
