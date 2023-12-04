@@ -17,7 +17,7 @@ func part2(lines []string) int {
 }
 
 func main() {
-	args := os.Args
+	args := os.Args[1:]
 	name := "sample"
 	if len(args) > 0 {
 		name = args[0]
