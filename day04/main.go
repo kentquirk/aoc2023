@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -55,8 +56,51 @@ func part1(lines []string) int {
 	return totalPoints
 }
 
+type card struct {
+	id           int
+	numWinners   int
+	numInstances int
+}
+
 func part2(lines []string) int {
-	return 0
+	splitpat := regexp.MustCompile(`:|\|`)
+	numpat := regexp.MustCompile(`\d+`)
+	cards := make(map[int]*card)
+	lastid := 0
+	for _, line := range lines {
+		winners := make(Set[string])
+		numWinners := 0
+		parts := splitpat.Split(line, -1)
+		if len(parts) != 3 {
+			continue
+		}
+		id, _ := strconv.Atoi(numpat.FindString(parts[0]))
+		wins := numpat.FindAllString(parts[1], -1)
+		winners.AddAll(wins...)
+		for _, card := range numpat.FindAllString(parts[2], -1) {
+			if winners.Contains(card) {
+				numWinners++
+			}
+		}
+		cards[id] = &card{
+			id:           id,
+			numWinners:   numWinners,
+			numInstances: 1,
+		}
+		lastid = id
+	}
+	totalPoints := 0
+	for id := 1; id <= lastid; id++ {
+		c := cards[id]
+		if c.numWinners > 0 {
+			for i := 1; i <= c.numWinners; i++ {
+				cards[id+i].numInstances += c.numInstances
+			}
+		}
+		totalPoints += c.numInstances
+	}
+
+	return totalPoints
 }
 
 func main() {
@@ -75,4 +119,5 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
