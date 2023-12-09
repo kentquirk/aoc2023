@@ -52,6 +52,15 @@ func (t triangle) NextValue() int {
 	return next
 }
 
+func (t triangle) PrevValue() int {
+	row := len(t) - 1
+	prev := t[row][0]
+	for row--; row >= 0; row-- {
+		prev = t[row][0] - prev
+	}
+	return prev
+}
+
 func (t triangle) String() string {
 	var s strings.Builder
 	for _, row := range t {
@@ -77,7 +86,16 @@ func part1(lines []string) int {
 }
 
 func part2(lines []string) int {
-	return 0
+	total := 0
+	for _, line := range lines {
+		s := BuildSequence(line)
+		t := BuildTriangle(s)
+		n := t.PrevValue()
+		total += n
+		// fmt.Println(t)
+		// fmt.Println(n, total)
+	}
+	return total
 }
 
 func main() {
@@ -96,4 +114,5 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
