@@ -59,7 +59,7 @@ func load(lines []string) *starmap {
 	return m
 }
 
-func (m *starmap) calcTotalDistance() int {
+func (m *starmap) calcTotalDistance(multiplier int) int {
 	abs := func(x int) int {
 		if x < 0 {
 			return -x
@@ -70,8 +70,8 @@ func (m *starmap) calcTotalDistance() int {
 	totalDistance := 0
 	for i := 0; i < len(m.stars)-1; i++ {
 		for j := i + 1; j < len(m.stars); j++ {
-			rowdist := abs((m.stars[i].row + m.rowoffsets[m.stars[i].row]) - (m.stars[j].row + m.rowoffsets[m.stars[j].row]))
-			coldist := abs((m.stars[i].col + m.coloffsets[m.stars[i].col]) - (m.stars[j].col + m.coloffsets[m.stars[j].col]))
+			rowdist := abs((m.stars[i].row + m.rowoffsets[m.stars[i].row]*multiplier) - (m.stars[j].row + m.rowoffsets[m.stars[j].row]*multiplier))
+			coldist := abs((m.stars[i].col + m.coloffsets[m.stars[i].col]*multiplier) - (m.stars[j].col + m.coloffsets[m.stars[j].col]*multiplier))
 			dist := rowdist + coldist
 			totalDistance += dist
 		}
@@ -81,11 +81,12 @@ func (m *starmap) calcTotalDistance() int {
 
 func part1(lines []string) int {
 	sm := load(lines)
-	return sm.calcTotalDistance()
+	return sm.calcTotalDistance(1)
 }
 
 func part2(lines []string) int {
-	return 0
+	sm := load(lines)
+	return sm.calcTotalDistance(999_999)
 }
 
 func main() {
@@ -104,4 +105,5 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
