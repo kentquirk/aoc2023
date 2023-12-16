@@ -139,15 +139,37 @@ func (g grid) Print(visited bool) {
 	}
 }
 
-func part1(lines []string) int {
+func checkFrom(lines []string, co coord, dir direction) int {
 	g := load(lines)
-	g.follow(coord{r: 0, c: -1}, direction{dc: 1})
-	// g.Print(true)
+	g.follow(co, dir)
 	return g.count()
 }
 
+func part1(lines []string) int {
+	return checkFrom(lines, coord{r: 0, c: -1}, direction{dc: 1})
+}
+
 func part2(lines []string) int {
-	return 0
+	g := load(lines)
+	scores := make(map[coord]int)
+	for r := 0; r < g.height; r++ {
+		scores[coord{r: r, c: -1}] = checkFrom(lines, coord{r: r, c: -1}, direction{dc: 1})
+		scores[coord{r: r, c: g.width}] = checkFrom(lines, coord{r: r, c: g.width}, direction{dc: -1})
+	}
+	for c := 0; c < g.width; c++ {
+		scores[coord{r: -1, c: c}] = checkFrom(lines, coord{r: -1, c: c}, direction{dr: 1})
+		scores[coord{r: g.height, c: c}] = checkFrom(lines, coord{r: g.height, c: c}, direction{dr: -1})
+	}
+	max := 0
+	best := coord{}
+	for c, score := range scores {
+		if score > max {
+			max = score
+			best = c
+		}
+	}
+	fmt.Println(best, max)
+	return max
 }
 
 func main() {
@@ -166,4 +188,5 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
