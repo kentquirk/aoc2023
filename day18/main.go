@@ -25,6 +25,10 @@ type contigRun struct {
 	cross bool
 }
 
+func (r contigRun) width() int {
+	return r.last - r.first + 1
+}
+
 type row struct {
 	runs []*run
 }
@@ -106,9 +110,6 @@ func (l *lagoon) contiguous(rix int) []contigRun {
 	}
 	cur.last = l.rows[rix].runs[len(l.rows[rix].runs)-1].last
 	contigs = append(contigs, cur)
-	if rix > 18 && rix < 30 {
-		fmt.Println(rix, contigs)
-	}
 	return contigs
 }
 
@@ -185,6 +186,27 @@ func (l *lagoon) fill() {
 	}
 }
 
+func (l *lagoon) fillCount() int {
+	count := 0
+	for ix := range l.rows {
+		cont := l.contiguous(ix)
+		inside := cont[0].cross
+		rowcount := cont[0].width()
+		for i := 1; i < len(cont); i++ {
+			rowcount += cont[i].width()
+			if inside {
+				rowcount += cont[i].first - cont[i-1].last - 1
+			}
+			if cont[i].cross {
+				inside = !inside
+			}
+		}
+		// fmt.Println(ix, rowcount)
+		count += rowcount
+	}
+	return count
+}
+
 func (l *lagoon) String() string {
 	var sb strings.Builder
 	lt := l.left()
@@ -208,6 +230,25 @@ type Instruction struct {
 	color     color
 }
 
+func (i *Instruction) part2fix() {
+	sarg := string(i.color[1:6])
+	sop := i.color[6:]
+	arg, _ := strconv.ParseInt(sarg, 16, 64)
+	i.argument = int(arg)
+	switch sop {
+	case "0":
+		i.operation = "R"
+	case "1":
+		i.operation = "D"
+	case "2":
+		i.operation = "L"
+	case "3":
+		i.operation = "U"
+	default:
+		panic(sop)
+	}
+}
+
 func parseInstruction(line string) Instruction {
 	parts := strings.Split(line, " ")
 	i, _ := strconv.Atoi(parts[1])
@@ -218,10 +259,14 @@ func parseInstruction(line string) Instruction {
 	}
 }
 
-func parseInstructions(lines []string) []Instruction {
+func parseInstructions(lines []string, fix bool) []Instruction {
 	var instructions []Instruction
 	for _, line := range lines {
-		instructions = append(instructions, parseInstruction(line))
+		ins := parseInstruction(line)
+		if fix {
+			ins.part2fix()
+		}
+		instructions = append(instructions, ins)
 	}
 	return instructions
 }
@@ -229,11 +274,14 @@ func parseInstructions(lines []string) []Instruction {
 // expands rows and returns the new row index
 func (l *lagoon) maybeExpand(r, dr int) int {
 	if r+dr < 0 {
-		for r+dr < 0 {
-			l.rows = append([]*row{newRow()}, l.rows...)
-			l.height++
-			r++
+		newRowsNeeded := -(r + dr)
+		newrows := make([]*row, newRowsNeeded)
+		for i := range newrows {
+			newrows[i] = newRow()
 		}
+		l.rows = append(newrows, l.rows...)
+		l.height += newRowsNeeded
+		r += newRowsNeeded
 	} else {
 		for l.height < r+dr+1 {
 			l.rows = append(l.rows, newRow())
@@ -285,25 +333,34 @@ func (l *lagoon) dig(r, c int, instruction Instruction) (int, int) {
 
 func part1(lines []string) int {
 	lagoon := newLagoon()
-	instructions := parseInstructions(lines)
+	instructions := parseInstructions(lines, false)
 	r, c := 0, 0
 	for _, instruction := range instructions {
 		r, c = lagoon.dig(r, c, instruction)
 	}
-	fmt.Println(lagoon)
-	lagoon.fill()
-	fmt.Println("-------")
-	fmt.Println(lagoon)
-	return lagoon.count()
+	// fmt.Println(lagoon)
+	return lagoon.fillCount()
+	// lagoon.fill()
+	// fmt.Println("-------")
+	// fmt.Println(lagoon)
+	// return lagoon.count()
 }
 
 func part2(lines []string) int {
-	return 0
+	lagoon := newLagoon()
+	instructions := parseInstructions(lines, true)
+	r, c := 0, 0
+	for _, instruction := range instructions {
+		// fmt.Println("digging for ", instruction)
+		r, c = lagoon.dig(r, c, instruction)
+	}
+	// fmt.Println("calculating fill")
+	return lagoon.fillCount()
 }
 
 func main() {
 	args := os.Args[1:]
-	name := "input"
+	name := "sample"
 	if len(args) > 0 {
 		name = args[0]
 	}
@@ -317,4 +374,5 @@ func main() {
 	}
 	lines := strings.Split(string(b), "\n")
 	fmt.Println(part1(lines))
+	fmt.Println(part2(lines))
 }
