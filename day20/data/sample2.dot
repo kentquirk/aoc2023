@@ -1,0 +1,10 @@
+digraph G {
+a, b [shape=diamond]
+broadcaster [shape=rectangle]
+
+broadcaster -> a
+a -> inv, con
+inv -> b
+b -> con
+con -> output
+}
