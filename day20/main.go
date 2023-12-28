@@ -229,6 +229,7 @@ func (n *network) processQueue(buttonPresses int) (int, int, bool) {
 						if evt.pul == low {
 							delta := buttonPresses - lastPulse[d]
 							lastPulse[d] = buttonPresses
+							// this is ugly as FUCK
 							fmt.Printf("got %v from %s to %s at %d (%d)\n", evt.pul, evt.src, d, buttonPresses, delta)
 						}
 					}
